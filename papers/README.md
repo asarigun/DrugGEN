@@ -1,8 +1,8 @@
-# Related Papers
+# Related Papers :mute:
 
 ![heey](https://img.shields.io/badge/Be%20quite!-Someone%20reading!-blue)
 
-Papers about **De novo Drug Design**. For quick access, **some papers' PDF versions** provided!
+Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PDF versions** provided!
 
 **Please feel free to add good, related papers. If there is any error about links, don't hesitate to pull or adjust it!**
 
