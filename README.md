@@ -1,6 +1,10 @@
 # MolecularTransGAN
 Official implementation of MolecularTransGAN
 
+<p align="center"><img width="100%" src="https://github.com/asarigun/MolecularTransGAN/blob/main/papers/assets/DrugGEN_MolecularTransGAN.png"></p>
+
+MolecularTransGAN: Model architecture for DRugGEN. **Details coming soon!**
+
 ## News 
 
 * **Related Paper for MolecularTransGAN** project can be found at [here](https://github.com/asarigun/MolecularTransGAN/blob/main/papers)!
