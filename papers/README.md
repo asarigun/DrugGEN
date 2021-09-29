@@ -100,5 +100,6 @@ Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PD
 * [Journal of Chemical Information and Modeling 2021] **OpenChem: A Deep Learning Toolkit for Computational Chemistry and Drug Design** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.0c00971)[[Code]](https://github.com/Mariewelt/OpenChem)[[PDF]](assets/OpenChemadeeplearningtoolkitforcomputationalchemistryanddrugdesign.pdf)
 * [PLoS One 2021] **PFP-WGAN: Protein function prediction by discovering Gene Ontology term correlations with generative adversarial networks** [[Paper]](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0244430)[[Code]](http://git.dml.ir/seyyedsalehi/PFP-WGAN)[[PDF]](assets/PFPWGAN:ProteinfunctionpredictionbydiscoveringGeneOntologytermcorrelationswithgenerativeadversarialnetworks.pdf)
 * [arXiv 2021] **Transformers for Molecular Graph Generation** [[Paper]](https://www.esann.org/sites/default/files/proceedings/2021/ES2021-112.pdf)[[Code]](https://gitlab.uni-oldenburg.de/gies6280/molegent)[[PDF]](assets/Transformers_for_Molecular_Graph_Generation.pdf)
+* Astra Zeneca's REINVENT Generative AI (Note taken by Abdurrahman) https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/60c74fb60f50db7e51397450/original/reinvent-2-0-an-ai-tool-for-de-novo-drug-design.pdf
 
 
