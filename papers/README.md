@@ -28,7 +28,8 @@ Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PD
 * [Journal of Cheminformatics 2018] **Multi-objective de novo drug design with conditional graph generative model** [[Paper]](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-018-0287-6)[[Code]](https://github.com/kevinid/molecule_generator)[[PDF]](assets/Multiobjectivedenovodrugdesignwithconditionalgraphgenerativemodel.pdf)
 * [Nature 2018] **Planning chemical syntheses with deep neural networks and symbolic AI** [[Paper]](https://www.nature.com/articles/nature25978)[[PDF]](assets/PlanningchemicalsyntheseswithdeepneuralnetworksandsymbolicAI.pdf)
 * [ACS Medicinal Chemistry Letters 2018] **Transforming Computational Drug Discovery with Machine Learning and AI** [[Paper]](https://pubs.acs.org/doi/10.1021/acsmedchemlett.8b00437)
-* [Journal of chemical information and modeling 2019] **Sparse Generative Topographic Mapping for Both Data Visualization and Clustering** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.8b00528)[[Code]](https://github.com/hkaneko1985/gtm-generativetopographicmapping)[[PDF]](assets/SparseGenerativeTopographicMappingforBothDataVisualizationandClustering.pdf)
+* [Journal of chemical information and modeling 2018] **Sparse Generative Topographic Mapping for Both Data Visualization and Clustering** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.8b00528)[[Code]](https://github.com/hkaneko1985/gtm-generativetopographicmapping)[[PDF]](assets/SparseGenerativeTopographicMappingforBothDataVisualizationandClustering.pdf)
+* [ACL Anthology 2018] **Bidirectional Generative Adversarial Networks for Neural Machine Translation** [[Paper]](https://aclanthology.org/K18-1019/)[[PDF]](assets/Bidirectional_Generative_Adversarial_Networks_for_Neural_Machine_Translation.pdf)
 
 2019
 ----
