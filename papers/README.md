@@ -89,6 +89,7 @@ Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PD
 * [Science 2020] **Synthetic connectivity, emergence, and self-regeneration in the network of prebiotic chemistry** [[Paper]](https://www.science.org/doi/10.1126/science.aaw1955)[[PDF]](assets/Syntheticconnectivityemergenceandselfregenerationinthenetworkofprebioticchemistry.pdf)
 * [arXiv 2020] **Target-specific and selective drug design for covid-19 using deep generative models** [[Paper]](https://arxiv.org/abs/2004.01215)
 * [ChemRxiv 2020] **REINVENT 2.0 – an AI Tool for De Novo Drug Design** [[Paper]](https://chemrxiv.org/engage/chemrxiv/article-details/60c74f75bdbb89eaf7a39d8a)[[Code]](https://github.com/MolecularAI/Reinvent)[[PDF]](assets/reinvent_2_0_an_ai_tool_for_de_novo_drug_design.pdf)
+* [Front. Pharmacol. 2020] **Molecular Generation for Desired Transcriptome Changes With Adversarial Autoencoders** [[Paper]](https://www.frontiersin.org/articles/10.3389/fphar.2020.00269/full)[[Code]](https://github.com/insilicomedicine/BiAAE)
 
 2021
 ----
