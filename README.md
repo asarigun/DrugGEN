@@ -3,7 +3,98 @@ Official implementation of MolecularTransGAN
 
 <p align="center"><img width="100%" src="https://github.com/asarigun/MolecularTransGAN/blob/main/papers/assets/DrugGEN_MolecularTransGAN.png"></p>
 
-MolecularTransGAN: Model architecture for DRugGEN. **Details coming soon!**
+MolecularTransGAN: Model architecture for DrugGEN. **Details coming soon!**
+
+## Generator 1
+
+<p align="center"><img width="100%" src="https://github.com/asarigun/MolecularTransGAN/blob/main/papers/assets/Generator1.png"></p>
+
+For the Generator 1, the [MolGAN](https://arxiv.org/abs/1805.11973)'s generator is adapted and developed with Transformers which can be found at ```scripts/layers.py```. Here the MolGAN's Generator:
+
+```python
+class Generator(nn.Module):
+    """Generator network."""
+    def __init__(self, conv_dims, z_dim, vertexes, edges, nodes, dropout):
+        super(Generator, self).__init__()
+
+        self.vertexes = vertexes
+        self.edges = edges
+        self.nodes = nodes
+
+        layers = []
+        for c0, c1 in zip([z_dim]+conv_dims[:-1], conv_dims):
+            layers.append(nn.Linear(c0, c1))
+            layers.append(nn.Tanh())
+            layers.append(nn.Dropout(p=dropout, inplace=True))
+        self.layers = nn.Sequential(*layers)
+
+        self.edges_layer = nn.Linear(conv_dims[-1], edges * vertexes * vertexes)
+        self.nodes_layer = nn.Linear(conv_dims[-1], vertexes * nodes)
+        self.dropoout = nn.Dropout(p=dropout)
+
+    def forward(self, x):
+
+        output = self.layers(x)
+        edges_logits = self.edges_layer(output)\
+                       .view(-1,self.edges,self.vertexes,self.vertexes)
+        edges_logits = (edges_logits + edges_logits.permute(0,1,3,2))/2
+        edges_logits = self.dropoout(edges_logits.permute(0,2,3,1))
+        nodes_logits = self.nodes_layer(output)
+        nodes_logits = self.dropoout(nodes_logits.view(-1,self.vertexes,self.nodes))
+        return edges_logits, nodes_logits
+```
+and our developed first Generator at ```scripts/model.py``` :
+
+```python
+class First_Generator(nn.Module):
+    def __init__(self, conv_dims, z_dim, vertexes, edges, nodes, depth, heads, mlp_ratio, drop_rate, dropout):
+        super().__init__()
+        
+        """Adapted from https://github.com/yongqyu/MolGAN-pytorch"""
+        
+        self.vertexes = vertexes
+        self.edges = edges
+        self.nodes = nodes
+
+        self.dim = dim
+        self.depth = depth
+        self.heads = heads
+        self.mlp_ratio = mlp_ratio
+        self.droprate_rate =drop_rate
+
+        layers = []
+        for c0, c1 in zip([z_dim]+conv_dims[:-1], conv_dims):
+            layers.append(nn.Linear(c0, c1))
+            layers.append(nn.Tanh())
+            layers.append(nn.Dropout(p=dropout, inplace=True))
+        self.layers = nn.Sequential(*layers)
+
+        self.edges_layer = nn.Linear(conv_dims[-1], edges * vertexes * vertexes)
+        self.nodes_layer = nn.Linear(conv_dims[-1], vertexes * nodes)
+        self.dropoout = nn.Dropout(p=dropout)
+
+        self.TransformerEncoder = TransformerEncoder(depth=self.depth, dim=self.dim, heads=self.heads, mlp_ratio=self.mlp_ratio, drop_rate=self.droprate_rate)
+
+    def forward(self, x):
+    	
+        
+        output = self.layers(x)
+        edges_logits = self.edges_layer(output)\
+                       .view(-1,self.edges,self.vertexes,self.vertexes)
+        edges_logits = (edges_logits + edges_logits.permute(0,1,3,2))/2
+        edges_logits = self.dropoout(edges_logits.permute(0,2,3,1))
+
+        nodes_logits = self.nodes_layer(output)
+        nodes_logits = self.dropoout(nodes_logits.view(-1,self.vertexes,self.nodes))
+
+        edges_logits = self.TransformerEncoder(edges_logits)
+        nodes_logits = self.TransformerEncoder(nodes_logits)
+        
+        return edges_logits, nodes_logits
+```
+## Discriminator 1
+
+The discriminator is the same at MolGAN's discriminators consisting of Graph Convolutional Nets (GCNs). You can look at the details at [here](https://arxiv.org/abs/1805.11973). The implementations details can be founa at  ```scripts/model.py```
 
 ## News 
 
