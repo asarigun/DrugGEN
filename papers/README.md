@@ -14,6 +14,7 @@ Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PD
 * [Molecular Pharmaceutics 2017] **druGAN: An Advanced Generative Adversarial Autoencoder Model for de Novo Generation of New Molecules with Desired Molecular Properties in Silico** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.molpharmaceut.7b00346)
 * [ACS Central Science 2017] **Generating Focused Molecule Libraries for Drug Discovery with Recurrent Neural Networks** [[Paper]](https://pubs.acs.org/doi/10.1021/acscentsci.7b00512)
 * [Journal of Cheminformatics 2017] **Molecular de-novo design through deep reinforcement learning** [[Paper]](https://jcheminf.biomedcentral.com/articles/10.1186/s13321-017-0235-x)[[Code]](https://github.com/MarcusOlivecrona/REINVENT)
+* [arXiv 2017] **GraphGAN: Graph Representation Learning with Generative Adversarial Nets** [[Paper]](https://arxiv.org/abs/1711.08267) [[Code]](https://github.com/hwwang55/GraphGAN)
 
 2018
 ----
@@ -30,6 +31,9 @@ Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PD
 * [ACS Medicinal Chemistry Letters 2018] **Transforming Computational Drug Discovery with Machine Learning and AI** [[Paper]](https://pubs.acs.org/doi/10.1021/acsmedchemlett.8b00437)
 * [Journal of chemical information and modeling 2018] **Sparse Generative Topographic Mapping for Both Data Visualization and Clustering** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.8b00528)[[Code]](https://github.com/hkaneko1985/gtm-generativetopographicmapping)[[PDF]](assets/SparseGenerativeTopographicMappingforBothDataVisualizationandClustering.pdf)
 * [ACL Anthology 2018] **Bidirectional Generative Adversarial Networks for Neural Machine Translation** [[Paper]](https://aclanthology.org/K18-1019/)[[PDF]](assets/Bidirectional_Generative_Adversarial_Networks_for_Neural_Machine_Translation.pdf)
+* [KDD 2018] **Learning Deep Network Representations with Adversarially
+Regularized Autoencoders** [[Paper]](https://dl.acm.org/doi/pdf/10.1145/3219819.3220000)
+* [arXiv 2018] **NetGAN: Generating Graphs via Random Walks** [[Paper]](https://arxiv.org/abs/1803.00816) [[Code]](https://github.com/danielzuegner/netgan)
 
 2019
 ----
@@ -64,6 +68,7 @@ Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PD
 * [arXiv 2019] **Scaffold-based molecular design using graph generative model** [[Paper]](https://arxiv.org/abs/1905.13639)[[PDF]](assets/Scaffoldbasedmoleculardesignusinggraphgenerativemodel.pdf)
 * [ACS 2019] **Shape-Based Generative Modeling for de Novo Drug Design** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.8b00706)[[Code]](https://github.com/compsciencelab/ligdream)[[PDF]](assets/ShapeBasedGenerativeModelingfordeNovoDrugDesign.pdf)
 * [arXiv 2019] **A Two-Step Graph Convolutional Decoder for Molecule Generation** [[Paper]](https://arxiv.org/abs/1906.03412)[[PDF]](assets/ATwoStepGraphConvolutionalDecoderforMoleculeGeneration.pdf)
+* [arXiv 2019] **Adversarially Regularized Graph Autoencoder for Graph Embedding** [[Paper]](https://arxiv.org/abs/1802.04407)[[Code]](https://github.com/GRAND-Lab/ARGA)
 
 
 2020
@@ -90,6 +95,7 @@ Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PD
 * [arXiv 2020] **Target-specific and selective drug design for covid-19 using deep generative models** [[Paper]](https://arxiv.org/abs/2004.01215)
 * [ChemRxiv 2020] **REINVENT 2.0 – an AI Tool for De Novo Drug Design** [[Paper]](https://chemrxiv.org/engage/chemrxiv/article-details/60c74f75bdbb89eaf7a39d8a)[[Code]](https://github.com/MolecularAI/Reinvent)[[PDF]](assets/reinvent_2_0_an_ai_tool_for_de_novo_drug_design.pdf)
 * [Front. Pharmacol. 2020] **Molecular Generation for Desired Transcriptome Changes With Adversarial Autoencoders** [[Paper]](https://www.frontiersin.org/articles/10.3389/fphar.2020.00269/full)[[Code]](https://github.com/insilicomedicine/BiAAE)
+* [arXiv 2020] **Graph-Bert: Only Attention is Needed for Learning Graph Representations** [[Paper]](https://arxiv.org/abs/2001.05140) [[Code]](https://github.com/jwzhanggy/Graph-Bert)
 
 2021
 ----
@@ -104,6 +110,7 @@ Papers about **De novo Drug Design :pill:**. For quick access, **some papers' PD
 * [PLoS One 2021] **PFP-WGAN: Protein function prediction by discovering Gene Ontology term correlations with generative adversarial networks** [[Paper]](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0244430)[[Code]](http://git.dml.ir/seyyedsalehi/PFP-WGAN)[[PDF]](assets/PFPWGAN:ProteinfunctionpredictionbydiscoveringGeneOntologytermcorrelationswithgenerativeadversarialnetworks.pdf)
 * [arXiv 2021] **Transformers for Molecular Graph Generation** [[Paper]](https://www.esann.org/sites/default/files/proceedings/2021/ES2021-112.pdf)[[Code]](https://gitlab.uni-oldenburg.de/gies6280/molegent)[[PDF]](assets/Transformers_for_Molecular_Graph_Generation.pdf)
 * [CVPR 2021] **Training Generative Adversarial Networks in One Stage** [[Paper]](https://arxiv.org/abs/2103.00430)[[Code]](https://github.com/zju-vipa/OSGAN)[[PDF]](assets/Training_Generative_Adversarial_Networks_in_One_Stage.pdf)
+* [Briefings in Bioinformatics] **Graph representation learning in bioinformatics: trends, methods and applications** [[Paper]](https://academic.oup.com/bib/advance-article/doi/10.1093/bib/bbab340/6361044) 
 <!--* Astra Zeneca's REINVENT Generative AI (Note taken by Abdurrahman) https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/60c74fb60f50db7e51397450/original/reinvent-2-0-an-ai-tool-for-de-novo-drug-design.pdf -->
 
 
