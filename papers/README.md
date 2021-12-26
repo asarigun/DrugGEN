@@ -69,6 +69,7 @@ Regularized Autoencoders** [[Paper]](https://dl.acm.org/doi/pdf/10.1145/3219819.
 * [ACS 2019] **Shape-Based Generative Modeling for de Novo Drug Design** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.8b00706)[[Code]](https://github.com/compsciencelab/ligdream)[[PDF]](assets/ShapeBasedGenerativeModelingfordeNovoDrugDesign.pdf)
 * [arXiv 2019] **A Two-Step Graph Convolutional Decoder for Molecule Generation** [[Paper]](https://arxiv.org/abs/1906.03412)[[PDF]](assets/ATwoStepGraphConvolutionalDecoderforMoleculeGeneration.pdf)
 * [arXiv 2019] **Adversarially Regularized Graph Autoencoder for Graph Embedding** [[Paper]](https://arxiv.org/abs/1802.04407)[[Code]](https://github.com/GRAND-Lab/ARGA)
+* [ACS JCIM 2021] **Graph Convolutional Neural Networks for Predicting Drug-Target Interactions** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.9b00628)
 
 
 2020
@@ -96,6 +97,9 @@ Regularized Autoencoders** [[Paper]](https://dl.acm.org/doi/pdf/10.1145/3219819.
 * [ChemRxiv 2020] **REINVENT 2.0 – an AI Tool for De Novo Drug Design** [[Paper]](https://chemrxiv.org/engage/chemrxiv/article-details/60c74f75bdbb89eaf7a39d8a)[[Code]](https://github.com/MolecularAI/Reinvent)[[PDF]](assets/reinvent_2_0_an_ai_tool_for_de_novo_drug_design.pdf)
 * [Front. Pharmacol. 2020] **Molecular Generation for Desired Transcriptome Changes With Adversarial Autoencoders** [[Paper]](https://www.frontiersin.org/articles/10.3389/fphar.2020.00269/full)[[Code]](https://github.com/insilicomedicine/BiAAE)
 * [arXiv 2020] **Graph-Bert: Only Attention is Needed for Learning Graph Representations** [[Paper]](https://arxiv.org/abs/2001.05140) [[Code]](https://github.com/jwzhanggy/Graph-Bert)
+* [RSC 2020] **Heck reaction prediction using a transformer model based on a transfer learning strategy** [[Paper]](https://pubs.rsc.org/en/content/articlelanding/2020/cc/d0cc02657c) 
+* [arXiv 2020] **Barking up the right tree: an approach to search over molecule synthesis DAGs** [[Paper]](https://arxiv.org/abs/2012.11522) [[Code]](https://github.com/john-bradshaw/synthesis-dags)
+* [arXiv 2020] **Data Augmentation for Graph Neural Networks** [[Paper]](https://arxiv.org/abs/2006.06830)[[Code]](https://github.com/zhao-tong/GAug)
 
 2021
 ----
@@ -111,6 +115,12 @@ Regularized Autoencoders** [[Paper]](https://dl.acm.org/doi/pdf/10.1145/3219819.
 * [arXiv 2021] **Transformers for Molecular Graph Generation** [[Paper]](https://www.esann.org/sites/default/files/proceedings/2021/ES2021-112.pdf)[[Code]](https://gitlab.uni-oldenburg.de/gies6280/molegent)[[PDF]](assets/Transformers_for_Molecular_Graph_Generation.pdf)
 * [CVPR 2021] **Training Generative Adversarial Networks in One Stage** [[Paper]](https://arxiv.org/abs/2103.00430)[[Code]](https://github.com/zju-vipa/OSGAN)[[PDF]](assets/Training_Generative_Adversarial_Networks_in_One_Stage.pdf)
 * [Briefings in Bioinformatics] **Graph representation learning in bioinformatics: trends, methods and applications** [[Paper]](https://academic.oup.com/bib/advance-article/doi/10.1093/bib/bbab340/6361044) 
+* [ACS JCIM 2021] **Exploring Graph Traversal Algorithms in Graph-Based Molecular Generation** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.1c00777)[[Code]](https://github.com/MolecularAI/GraphINVENT)
+* [arXiv 2021] **Adaptive Fourier Neural Operators: Efficient Token Mixers for Transformers** [[Paper]](https://arxiv.org/abs/2111.13587)[[Unofficial Code]](https://github.com/DarshanDeshpande/research-paper-implementations/tree/main/tensorflow/afno)
+* [frontiers in Molecular Biosciences 2021] **Protein Docking Model Evaluation by Graph Neural Networks** [[Paper]](https://www.frontiersin.org/articles/10.3389/fmolb.2021.647915/full)[[Code]](https://github.com/kiharalab/GNN_DOVE)
+* [ACS 2006] **sc-PDB:  an Annotated Database of Druggable Binding Sites from the Protein Data Bank** [[Paper]](https://pubs.acs.org/doi/10.1021/ci050372x)
+* [Journal of Computational Biology 2006] **Comparing Graph Representations of Protein Structure for Mining Family-Specific Residue-Based Packing Motifs** [[Paper]](https://www.liebertpub.com/doi/abs/10.1089/cmb.2005.12.657)
+* [OpenReview 2021] **G-Mixup: Graph Augmentation for Graph Classification** [[Paper]](https://openreview.net/forum?id=dIVrWHP9_1i)
 <!--* Astra Zeneca's REINVENT Generative AI (Note taken by Abdurrahman) https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/60c74fb60f50db7e51397450/original/reinvent-2-0-an-ai-tool-for-de-novo-drug-design.pdf -->
 
 
