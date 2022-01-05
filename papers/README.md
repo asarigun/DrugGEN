@@ -121,6 +121,9 @@ Regularized Autoencoders** [[Paper]](https://dl.acm.org/doi/pdf/10.1145/3219819.
 * [ACS 2006] **sc-PDB:  an Annotated Database of Druggable Binding Sites from the Protein Data Bank** [[Paper]](https://pubs.acs.org/doi/10.1021/ci050372x)
 * [Journal of Computational Biology 2006] **Comparing Graph Representations of Protein Structure for Mining Family-Specific Residue-Based Packing Motifs** [[Paper]](https://www.liebertpub.com/doi/abs/10.1089/cmb.2005.12.657)
 * [OpenReview 2021] **G-Mixup: Graph Augmentation for Graph Classification** [[Paper]](https://openreview.net/forum?id=dIVrWHP9_1i)
+* [Nature 2021] **Synthon-based ligand discovery in virtual libraries of over 11 billion compounds** [[Paper]](https://www.nature.com/articles/s41586-021-04220-9)
+* [ACS JCIM 2021] **Comparative Study of Deep Generative Models on Chemical Space Coverage** [[Paper]](https://doi.org/10.1021/acs.jcim.0c01328) 
+* [ACS JCIM 2021] **Generative Chemical Transformer: Neural Machine Learning of Molecular Geometric Structures from Chemical Language via Attention** [[Paper]](https://doi.org/10.1021/acs.jcim.1c01289)
 <!--* Astra Zeneca's REINVENT Generative AI (Note taken by Abdurrahman) https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/60c74fb60f50db7e51397450/original/reinvent-2-0-an-ai-tool-for-de-novo-drug-design.pdf -->
 
 
