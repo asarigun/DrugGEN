@@ -100,6 +100,7 @@ Regularized Autoencoders** [[Paper]](https://dl.acm.org/doi/pdf/10.1145/3219819.
 * [RSC 2020] **Heck reaction prediction using a transformer model based on a transfer learning strategy** [[Paper]](https://pubs.rsc.org/en/content/articlelanding/2020/cc/d0cc02657c) 
 * [arXiv 2020] **Barking up the right tree: an approach to search over molecule synthesis DAGs** [[Paper]](https://arxiv.org/abs/2012.11522) [[Code]](https://github.com/john-bradshaw/synthesis-dags)
 * [arXiv 2020] **Data Augmentation for Graph Neural Networks** [[Paper]](https://arxiv.org/abs/2006.06830)[[Code]](https://github.com/zhao-tong/GAug)
+* [ACS 2020] **The Synthesizability of Molecules Proposed by Generative Models** [[Paper]](https://pubs.acs.org/doi/full/10.1021/acs.jcim.0c00174)[[Code]](https://github.com/wenhao-gao/askcos_synthesizability)
 
 2021
 ----
