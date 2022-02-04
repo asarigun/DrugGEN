@@ -125,6 +125,7 @@ Regularized Autoencoders** [[Paper]](https://dl.acm.org/doi/pdf/10.1145/3219819.
 * [Nature 2021] **Synthon-based ligand discovery in virtual libraries of over 11 billion compounds** [[Paper]](https://www.nature.com/articles/s41586-021-04220-9)
 * [ACS JCIM 2021] **Comparative Study of Deep Generative Models on Chemical Space Coverage** [[Paper]](https://doi.org/10.1021/acs.jcim.0c01328) 
 * [ACS JCIM 2021] **Generative Chemical Transformer: Neural Machine Learning of Molecular Geometric Structures from Chemical Language via Attention** [[Paper]](https://doi.org/10.1021/acs.jcim.1c01289)
+* [ACS JCIM 2021] **De Novo Structure-Based Drug Design Using Deep Learning** [[Paper]](https://pubs.acs.org/doi/10.1021/acs.jcim.1c01319) 
 <!--* Astra Zeneca's REINVENT Generative AI (Note taken by Abdurrahman) https://chemrxiv.org/engage/api-gateway/chemrxiv/assets/orp/resource/item/60c74fb60f50db7e51397450/original/reinvent-2-0-an-ai-tool-for-de-novo-drug-design.pdf -->
 
 
