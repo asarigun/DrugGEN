@@ -113,6 +113,6 @@ It enables cost-free project execution in the cloud. You can use the provided no
 
 In each file, we indicate whether a function or script is imported from another source. Here are some excellent sources from which we benefit: 
 <!--ADD THE REFERENCES THAT WE USED DURING THE IMPLEMENTATION-->
-- First GAN is borrowed from [MolGAN](https://github.com/yongqyu/MolGAN-pytorch)
+- First GAN is partially inspired from [MolGAN](https://github.com/yongqyu/MolGAN-pytorch)
 - Graph Transformer architecture of generators was inspired from [Dwivedi & Bresson, 2020](https://arxiv.org/abs/2012.09699)
 - Several [Pytroch Geometric](https://github.com/pyg-team/pytorch_geometric) scripts were used to generate the datasets
