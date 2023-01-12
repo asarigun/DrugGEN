@@ -60,9 +60,26 @@ This implementation:
 | ![ChEMBL_25](assets/molecule_1.png) | ![ChEMBL_45](assets/molecule_2.png) |
 
 ## Overview
-We provide the implementation of the DrugGEN in PyTorch Geometric framework, along with scripts to generate and run. The repository is organised as follows:
+We provide the implementation of the DrugGEN, along with scripts from PyTorch Geometric framework to generate and run. The repository is organised as follows:
 
-- ```data``` contains:
+```data``` contains: 
+- **Raw dataset files**, which should be text files containing SMILES strings only. Raw datasets preferably should not contain stereoisomeric SMILES to prevent Hydrogen atoms to be included in the final graph data. 
+- Constructed **graph datasets** (.pt) will be saved in this folder along with atom and bond encoder/decoder files (.pk).
+
+```experiments``` contains: 
+- ```logs``` folder. Model loss and performance metrics will be saved in this directory in seperate files for each model. 
+- ```results``` folder. Tensorboard files will be saved here if TensorBoard is used.
+- ```models``` folder. Models will be saved in this directory at last or preferred steps. 
+- ```samples``` folder. Molecule samples will be saved in this folder.
+
+**Python scripts are:**
+
+- ```layers.py``` file contains **Transformer Encoder**, **Transformer Decoder**, **PNA** (Corso et al., 2020), and **Graph Convolution Network** implementations.  
+- ```main.py``` contains arguments and this file is used to run the model.   
+- ```models.py``` has the implementation of the **Generators** and **Discriminators** which are used in GAN1 and GAN2.  
+- ```new_dataloader.py``` constructs the graph dataset from given raw data. Uses PyG based data classes.  
+- ```trainer.py``` is the training and testing file for the model. Workflow is constructed in this file.   
+- ```utils.py``` contains performance metrics from several other papers and some unique implementations. (De Cao et al, 2018; Polykovskiy et al., 2020)  
 
 ## Datasets
 Three different data types (i.e., compound, protein, and bioactivity) were retrieved from various data sources to train our deep generative models. GAN1 module requires only compound data while GAN2 requires all of three data types including compound, protein, and bioactivity.
@@ -71,7 +88,6 @@ Three different data types (i.e., compound, protein, and bioactivity) were retri
 - **Bioactivity data** of AKT target protein was retrieved from large-scale ChEMBL bioactivity database. It contains ligand interactions of human AKT1 (CHEMBL4282) protein with a pChEMBL value equal to or greater than 6 (IC50 <= 1 µM) as well as SMILES information of these ligands. The dataset was extended by including drug molecules from DrugBank database known to interact with human AKT proteins. Thus, a total of 3,251 bioactivity data points were obtained for training the AKT-specific generative model. To enhance the size of the bioactivity dataset, we also obtained two alternative versions by incorporating ligand interactions of protein members in non-specific serine/threonine kinase (STK) and kinase families.
 
 More details on the construction of datasets can be found in our paper referenced above.
-
 
 <!-- ADD SOME INFO HERE -->
 
@@ -103,7 +119,51 @@ It enables cost-free project execution in the cloud. You can use the provided no
 
 ## Training
 
-<!--ADD HERE TRAINING COMMANDS WITH EXPLAINATIONS-->
+```bash
+conda activate druggen
+
+# Download the raw files
+
+bash dataset_download.sh
+
+# DrugGEN can be trained with a one-liner
+
+python DrugGEN/main.py --mode="train" --device="cuda" --raw_file="DrugGEN/data/chembl_smiles.smi" --dataset_file="chembl45.pt" -- drug_raw_file="drug_smies.smi" --drug_dataset_file="drugs.pt" --max_atom=45
+```
+
+** Please find the arguments in the **main.py** file. Explanation of the commands can be found below.
+
+```bash
+Model arguments:
+  --act ACT                 Activation function for the model
+  --z_dim Z_DIM             Prior noise for the first GAN
+  --max_atom MAX ATOM       Maximum atom number for molecules must be specified
+  --lambda_gp LAMBDA_GP     Gradient penalty lambda multiplier for the first GAN
+  --dim DIM                 Dimension of the Transformer models for both GANs
+  --depth DEPTH             Depth of the Transformer model from the first GAN
+  --heads HEADS             Number of heads for the MultiHeadAttention module from the first GAN
+  --dec_depth DEC_DEPTH     Depth of the Transformer model from the second GAN
+  --dec_heads DEC_HEADS     Number of heads for the MultiHeadAttention module from the second GAN
+  --mlp_ratio MLP_RATIO     MLP ratio for the Transformers
+  --dis_select DIS_SELECT   Select the discriminator for the first and second GAN
+  --init_type INIT_TYPE     Initialization type for the model
+  --dropout DROPOUT         Dropout rate for the model
+Training arguments:
+  --batch_size BATCH_SIZE   Batch size for the training
+  --epoch EPOCH             Epoch number for Training
+  --warm_up_steps           Warm up steps for the first GAN
+  --g_lr G_LR               Learning rate for G
+  --g2_lr G2_LR             Learning rate for G2
+  --d_lr D_LR               Learning rate for D
+  --d2_lr D2_LR             Learning rate for D2      
+  --n_critic N_CRITIC       Number of D updates per each G update
+  --beta1 BETA1             Beta1 for Adam optimizer
+  --beta2 BETA2             Beta2 for Adam optimizer 
+  --clipping_value          Clipping value for the gradient clipping process
+  --resume_iters            Resume training from this step for fine tuning if desired
+Dataset arguments:      
+  --features FEATURES       Additional node features (Boolean) (Please check new_dataloader.py Line 102)
+```
 
 ## Citation
 <!--ADD BIBTEX AFTER THE PUBLISHING-->
