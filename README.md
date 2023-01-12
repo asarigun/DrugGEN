@@ -110,7 +110,7 @@ It enables cost-free project execution in the cloud. You can use the provided no
 
 ## License
 
-The LICENSE will be announced! Until then, this code is available for **non-commercial scientific research purposes** as will be defined in the LICENSE file. By downloading and using this code you agree to the terms in the LICENSE. Third-party datasets and software are subject to their respective licenses.
+This code is available for **non-commercial scientific research purposes** as will be defined in the [LICENSE file](LICENSE). By downloading and using this code you agree to the terms in the [LICENSE](LICENSE). Third-party datasets and software are subject to their respective licenses.
 <!--ADD LICENSE TERMS AND LICENSE FILE AND GIVE A LINK HERE-->
 
 ## References
