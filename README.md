@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="Give a link here"><img src="https://img.shields.io/badge/paper-report-red"/></a>
-  <!--<a href="Give a link here"><img src="https://img.shields.io/github/license/thudm/cogdl"/></a>-->
+  <a href=https://github.com/asarigun/DrugGEN/blob/main/LICENSE><img src="https://img.shields.io/badge/See%20-License%20-blue"/></a>
   <a href="Give a link here" alt="license"><img src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
 </p>
 
