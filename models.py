@@ -1,19 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from layers import PNA, GraphConvolution, GraphAggregation, TransformerEncoder, TransformerDecoder
-import copy 
-from torch_geometric.nn import global_add_pool
-from torch_geometric.nn.conv import TransformerConv
-from torch_geometric.nn.dense import DenseGCNConv
+from layers import TransformerEncoder, TransformerDecoder
 
-    
-    
-    
 class Generator(nn.Module):
     """Generator network."""
-    def __init__(self, conv_dims, vertexes, edges, nodes, dropout, dim, depth, heads, mlp_ratio, drop_rate):
+    def __init__(self,z_dim, act, vertexes, edges, nodes, dropout, dim, depth, heads, mlp_ratio):
         super(Generator, self).__init__()
+        
 
         self.vertexes = vertexes
         self.edges = edges
@@ -22,56 +16,87 @@ class Generator(nn.Module):
         self.dim = dim
         self.heads = heads
         self.mlp_ratio = mlp_ratio
-        self.dropout_rate = drop_rate
-        dropout= self.dropout_rate
-    
+  
+        self.dropout = dropout
+        self.z_dim = z_dim
 
+        if act == "relu":
+            act = nn.ReLU()
+        elif act == "leaky":
+            act = nn.LeakyReLU()
+        elif act == "sigmoid":
+            act = nn.Sigmoid()
+        elif act == "tanh":
+            act = nn.Tanh()
+        self.features = vertexes * vertexes * edges + vertexes * nodes
+        self.transformer_dim = vertexes * vertexes * dim + vertexes * dim
+        self.pos_enc_dim = 5
+        #self.pos_enc = nn.Linear(self.pos_enc_dim, self.dim)
+        self.node_layers = nn.Sequential(nn.Linear(nodes,64), act, nn.Linear(64,dim), act, nn.Dropout(self.dropout))
+        self.edge_layers = nn.Sequential(nn.Linear(edges,64), act, nn.Linear(64,dim), act, nn.Dropout(self.dropout))
         
-        self.layers_edge = nn.Sequential(nn.Linear(self.edges, conv_dims[0]), nn.ReLU(), nn.Linear(conv_dims[0], self.dim))  #  128, 9, 9, 5 --> 128, 9, 9, 128
-        
-        self.layers_node = nn.Sequential(nn.Linear(self.nodes, conv_dims[0]), nn.ReLU(), nn.Linear(conv_dims[0], self.dim))  #  128, 9, 5 --> 128, 9, 128
-        
-    
-        
-        self.TransformerEncoder = TransformerEncoder(dim=self.dim, depth=self.depth, heads=self.heads,
-                                                                    mlp_ratio=self.mlp_ratio, drop_rate=self.dropout_rate)         
+        self.TransformerEncoder = TransformerEncoder(dim=self.dim, depth=self.depth, heads=self.heads, act = act,
+                                                                    mlp_ratio=self.mlp_ratio, drop_rate=self.dropout)         
      
 
-        self.dropout = nn.Dropout(p=dropout)
+    
         
-        self.nodes_output_layer = nn.Linear(self.dim, self.nodes)  # 128 -- > 5
-        self.edges_output_layer = nn.Linear(self.dim, self.edges)  # 128 -- > 5
-      
+        self.readout_e = nn.Linear(self.dim, edges)
+        self.readout_n = nn.Linear(self.dim, nodes)
+        self.softmax = nn.Softmax(dim = -1) 
+    def _generate_square_subsequent_mask(self, sz):
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        return mask
+    
+    def laplacian_positional_enc(self, adj):
+        
+        A = adj
+        D = torch.diag(torch.count_nonzero(A, dim=-1))
+        L = torch.eye(A.shape[0], device=A.device) - D * A * D
+        
+        EigVal, EigVec = torch.linalg.eig(L)
+    
+        idx = torch.argsort(torch.real(EigVal))
+        EigVal, EigVec = EigVal[idx], torch.real(EigVec[:,idx])
+        pos_enc = EigVec[:,1:self.pos_enc_dim + 1]
+        
+        return pos_enc
 
-    def forward(self, z_e,z_n,a,a_tensor,x_tensor):
-        
-        nodes_logits = self.layers_node(z_n) 
-        
-        nodes_logits = self.dropout(nodes_logits)
-        
-        edges_logits = self.layers_edge(z_e)
-        
-        edges_logits = edges_logits.view(-1,self.dim,self.vertexes,self.vertexes)
-        edges_logits = (edges_logits + edges_logits.permute(0,1,3,2))/2
-        edges_logits = self.dropout(edges_logits)
-        edges_logits = edges_logits.view(-1,self.vertexes,self.vertexes,self.dim)
+    def forward(self, z_e, z_n):
+        b, n, c = z_n.shape
+        _, _, _ , d = z_e.shape
+        #random_mask_e = torch.randint(low=0,high=2,size=(b,n,n,d)).to(z_e.device).float()
+        #random_mask_n = torch.randint(low=0,high=2,size=(b,n,c)).to(z_n.device).float()
+        #z_e = F.relu(z_e - random_mask_e)
+        #z_n = F.relu(z_n - random_mask_n)
 
+        node = self.node_layers(z_n)
+        
+        edge = self.edge_layers(z_e)
+        
+        #lap = [self.laplacian_positional_enc(torch.max(x,-1)[1]) for x in edge]
+        
+        #lap = torch.stack(lap).to(node.device)
+        
+        #pos_enc = self.pos_enc(lap)
+        
+        #node = node + pos_enc
+        
+        node, edge = self.TransformerEncoder(node,edge)
 
-        nodes_logits , edges_logits, attn = self.TransformerEncoder(nodes_logits, edges_logits)
+        node_sample = self.softmax(self.readout_n(node))
         
-        edges_logits = self.dropout(edges_logits)
-        nodes_logits = self.dropout(nodes_logits)
+        edge_sample = self.softmax(self.readout_e(edge))
         
-        
-        nodes_logits = self.nodes_output_layer(nodes_logits)
-        edges_logits = self.edges_output_layer(edges_logits)
-
-        return edges_logits, nodes_logits, attn
-        
+        return node, edge, node_sample, edge_sample
+     
+     
+     
 class Generator2(nn.Module):
-    def __init__(self, dim, depth, heads, mlp_ratio, drop_rate,drugs_m_dim,drugs_b_dim,b_dim,m_dim):
+    def __init__(self, dim, dec_dim, depth, heads, mlp_ratio, drop_rate,drugs_m_dim,drugs_b_dim,b_dim,m_dim, submodel):
         super().__init__()
-
+        self.submodel = submodel
         self.depth = depth
         self.dim = dim
         self.mlp_ratio = mlp_ratio
@@ -79,43 +104,104 @@ class Generator2(nn.Module):
         self.dropout_rate = drop_rate
         self.drugs_m_dim = drugs_m_dim
         self.drugs_b_dim = drugs_b_dim
-        self.prot_n = 7
-        self.prot_e = 1 
+
+        self.pos_enc_dim = 5
+        
+     
+        if self.submodel == "Prot":
+            self.prot_n = torch.nn.Linear(3822, 45)   ## exact dimension of protein features
+            self.prot_e = torch.nn.Linear(298116, 2025) ## exact dimension of protein features
+        
+            self.protn_dim = torch.nn.Linear(1,dec_dim)
+            self.prote_dim = torch.nn.Linear(1,dec_dim)
+            
+            
+        self.mol_nodes = nn.Linear(dim, dec_dim)
+        self.mol_edges = nn.Linear(dim, dec_dim)
+        
+        self.drug_nodes =  nn.Linear(self.drugs_m_dim, dec_dim)
+        self.drug_edges =  nn.Linear(self.drugs_b_dim, dec_dim)
+        
+        self.TransformerDecoder = TransformerDecoder(dec_dim, depth, heads, mlp_ratio, drop_rate=0.)
+
+        self.nodes_output_layer = nn.Linear(dec_dim, self.drugs_m_dim)
+        self.edges_output_layer = nn.Linear(dec_dim, self.drugs_b_dim)
+        self.softmax = nn.Softmax(dim = -1) 
+    def laplacian_positional_enc(self, adj):
+        
+        A = adj
+        D = torch.diag(torch.count_nonzero(A, dim=-1))
+        L = torch.eye(A.shape[0], device=A.device) - D * A * D
+        
+        EigVal, EigVec = torch.linalg.eig(L)
     
-        self.dropoout = nn.Dropout(p=drop_rate)
+        idx = torch.argsort(torch.real(EigVal))
+        EigVal, EigVec = EigVal[idx], torch.real(EigVec[:,idx])
+        pos_enc = EigVec[:,1:self.pos_enc_dim + 1]
         
-        self.mol_nodes = nn.Linear(m_dim, dim)
-        self.mol_edges = nn.Linear(b_dim, dim)
-        
-        self.prot_nodes =  nn.Linear(self.prot_n, dim)
-        self.prot_edges =  nn.Linear(self.prot_e, dim)
-        
-        self.TransformerDecoder = TransformerDecoder(dim, depth, heads, mlp_ratio=4, drop_rate=0.)
-
-        self.nodes_output_layer = nn.Linear(self.dim, self.drugs_m_dim)
-        self.edges_output_layer = nn.Linear(self.dim, self.drugs_b_dim)
-
-
-    def forward(self, edges_logits, nodes_logits, prot_n, prot_e):
+        return pos_enc
+    def _generate_square_subsequent_mask(self, sz):
+        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+        return mask
+    def forward(self, edges_logits, nodes_logits ,akt1_adj,akt1_annot):
         
         edges_logits = self.mol_edges(edges_logits)
         nodes_logits = self.mol_nodes(nodes_logits)
         
-        prot_n = self.prot_nodes(prot_n)
-        prot_e = self.prot_edges(prot_e)
-        
-        edges_logits, nodes_logits, dec_attn = self.TransformerDecoder(nodes_logits,prot_n,edges_logits,prot_e)
+        if self.submodel != "Prot":
+            akt1_annot = self.drug_nodes(akt1_annot)
+            akt1_adj = self.drug_edges(akt1_adj)
+         
+        else:
+            akt1_adj = self.prote_dim(self.prot_e(akt1_adj).view(1,45,45,1))
+            akt1_annot = self.protn_dim(self.prot_n(akt1_annot).view(1,45,1))       
+
+
+        #lap = [self.laplacian_positional_enc(torch.max(x,-1)[1]) for x in drug_e]
+        #lap = torch.stack(lap).to(drug_e.device)
+        #pos_enc = self.pos_enc(lap)
+        #drug_n = drug_n + pos_enc
+                
+        nodes_logits,akt1_annot, edges_logits, akt1_adj = self.TransformerDecoder(nodes_logits,akt1_annot,edges_logits,akt1_adj)
      
         edges_logits = self.edges_output_layer(edges_logits)
         nodes_logits = self.nodes_output_layer(nodes_logits)
         
-        edges_logits = self.dropoout(edges_logits)
-        nodes_logits = self.dropoout(nodes_logits)
-        
-        return edges_logits, nodes_logits, dec_attn
+        edges_logits = self.softmax(edges_logits)
+        nodes_logits = self.softmax(nodes_logits)
+ 
+        return edges_logits, nodes_logits
 
-class Discriminator(nn.Module):
-    """Discriminator network with PatchGAN."""
+
+class simple_disc(nn.Module):
+    def __init__(self, act,m_dim,vertexes,b_dim):
+        super().__init__()
+        act = "tanh"
+        if act == "relu":
+            act = nn.ReLU()
+        elif act == "leaky":
+            act = nn.LeakyReLU()
+        elif act == "sigmoid":
+            act = nn.Sigmoid()
+        elif act == "tanh":
+            act = nn.Tanh()  
+        features = vertexes * m_dim + vertexes * vertexes * b_dim 
+        
+        self.predictor = nn.Sequential(nn.Linear(features,256), act, nn.Linear(256,128), act, nn.Linear(128,64), act,
+                                       nn.Linear(64,32), act, nn.Linear(32,16), act,
+                                       nn.Linear(16,1))
+    
+    def forward(self, x):
+        
+        prediction = self.predictor(x)
+        
+        #prediction = F.softmax(prediction,dim=-1)
+        
+        return prediction
+
+"""class Discriminator(nn.Module):
+  
     def __init__(self,deg,agg,sca,pna_in_ch,pna_out_ch,edge_dim,towers,pre_lay,post_lay,pna_layer_num, graph_add):
         super(Discriminator, self).__init__()
         self.degree = deg
@@ -140,10 +226,10 @@ class Discriminator(nn.Module):
 
         h = activation(h) if activation is not None else h
         
-        return h
+        return h"""
 
-class Discriminator2(nn.Module):
-    """Discriminator network with PatchGAN."""
+"""class Discriminator2(nn.Module):
+
     def __init__(self,deg,agg,sca,pna_in_ch,pna_out_ch,edge_dim,towers,pre_lay,post_lay,pna_layer_num, graph_add):
         super(Discriminator2, self).__init__()
         self.degree = deg
@@ -168,10 +254,10 @@ class Discriminator2(nn.Module):
 
         h = activation(h) if activation is not None else h
         
-        return h
+        return h"""
 
 
-class Discriminator_old(nn.Module):
+"""class Discriminator_old(nn.Module):
 
     def __init__(self, conv_dim, m_dim, b_dim, dropout, gcn_depth):
         super(Discriminator_old, self).__init__()
@@ -210,9 +296,9 @@ class Discriminator_old(nn.Module):
         output = self.output_layer(h)
         output = activation(output) if activation is not None else output
         
-        return output, h
+        return output, h"""
     
-class Discriminator_old2(nn.Module):
+"""class Discriminator_old2(nn.Module):
 
     def __init__(self, conv_dim, m_dim, b_dim, dropout, gcn_depth):
         super(Discriminator_old2, self).__init__()
@@ -251,10 +337,10 @@ class Discriminator_old2(nn.Module):
         output = self.output_layer(h)
         output = activation(output) if activation is not None else output
         
-        return output, h
+        return output, h"""
     
-class Discriminator3(nn.Module):
-    """Discriminator network with PatchGAN."""
+"""class Discriminator3(nn.Module):
+    
     def __init__(self,in_ch):
         super(Discriminator3, self).__init__()
         self.dim = in_ch
@@ -269,10 +355,10 @@ class Discriminator3(nn.Module):
         h = self.mlp(h)
         h = activation(h) if activation is not None else h
         
-        return h
+        return h"""
     
     
-class PNA_Net(nn.Module):
+"""class PNA_Net(nn.Module):
     def __init__(self,deg):
         super().__init__()
 
@@ -297,4 +383,5 @@ class PNA_Net(nn.Module):
 
         x = self.agg_layer(x,torch.tanh)
        
-        return self.mlp(x)     
+        return self.mlp(x) """    
+    

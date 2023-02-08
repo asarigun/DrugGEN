@@ -7,7 +7,7 @@ from torch_geometric.nn import  PNAConv, global_add_pool, Set2Set, GraphMultiset
 import math
 
 class MLP(nn.Module):
-    def __init__(self, in_feat, hid_feat=None, out_feat=None,
+    def __init__(self, act, in_feat, hid_feat=None, out_feat=None,
                  dropout=0.):
         super().__init__()
         if not hid_feat:
@@ -15,8 +15,8 @@ class MLP(nn.Module):
         if not out_feat:
             out_feat = in_feat
         self.fc1 = nn.Linear(in_feat, hid_feat)
-        self.act = nn.Sigmoid()
-        self.fc2 = nn.Linear(hid_feat, out_feat)
+        self.act = torch.nn.ReLU()
+        self.fc2 = nn.Linear(hid_feat,out_feat)
         self.droprateout = nn.Dropout(dropout)
 
     def forward(self, x):
@@ -26,202 +26,168 @@ class MLP(nn.Module):
         return self.droprateout(x)
 
 class Attention_new(nn.Module):
-    def __init__(self, dim, heads=4, attention_dropout=0., proj_dropout=0.):
+    def __init__(self, dim, heads, act, attention_dropout=0., proj_dropout=0.):
         super().__init__()
         assert dim % heads == 0
         self.heads = heads
         self.scale = 1./dim**0.5
-        #self.scale = torch.div(1, torch.pow(dim, 0.5)) #1./torch.pow(dim, 0.5) #dim**0.5 torch.div(x, 0.5)
 
         self.q = nn.Linear(dim, dim)
         self.k = nn.Linear(dim, dim)
         self.v = nn.Linear(dim, dim)
-        
-        self.attention_dropout = nn.Dropout(attention_dropout)
+        self.e = nn.Linear(dim, dim)
+        #self.attention_dropout = nn.Dropout(attention_dropout)
 
-        #self.noise_strength_1 = torch.nn.Parameter(torch.zeros([]))
-        self.d_k = dim // heads  # We assume d_v always equals d_k
+        self.d_k = dim // heads  
         self.heads = heads
-
-
         self.out_e = nn.Linear(dim,dim)
-        self.out_n = nn.Linear(dim,dim)
+        self.out_n = nn.Linear(dim, dim)
+        
         
     def forward(self, node, edge):
         b, n, c = node.shape
-        b1, n1, n2, c1 = edge.shape
         
-        q_embed = self.q(node).view(-1, self.heads, n, c//self.heads)
-        k_embed = self.k(edge).view(-1, self.heads, n1, n2, c1//self.heads)
-        v_embed = self.v(node).view(-1, self.heads, n, c//self.heads)
-        #x = x + torch.randn([x.size(0), x.size(1), 1], device=x.device) * self.noise_strength_1
         
-
-
-        out_scores = torch.einsum('bhmd,bhmnd->bhmn', q_embed, k_embed) / math.sqrt(self.scale)
-        in_scores = torch.einsum('bhmd,bhmnd->bhnm', q_embed, k_embed) / math.sqrt(self.scale)
-
-        out_attn = F.softmax(out_scores, dim=-1)
-        in_attn = F.softmax(in_scores, dim=-1)
-        diag_attn = torch.diag_embed(torch.diagonal(out_attn, dim1=-2, dim2=-1), dim1=-2, dim2=-1)
-
-        message = out_attn + in_attn - diag_attn
+        q_embed = self.q(node).view(-1, n, self.heads, c//self.heads)
+        k_embed = self.k(node).view(-1, n, self.heads, c//self.heads)
+        v_embed = self.v(node).view(-1, n, self.heads, c//self.heads)
+   
+        e_embed = self.e(edge).view(-1, n, n, self.heads, c//self.heads)
         
-        # add the diffusion caused by distance
-    
-        #message = message * adj_matrix.unsqueeze(1)
-
-        #if dropout is not None:
-        message = self.attention_dropout(message)
-
-        # message.shape = (batch, h, max_length, max_length), value.shape = (batch, h, max_length, d_k)
-        node_hidden = torch.einsum('bhmn,bhnd->bhmd', message, v_embed)
-        edge_hidden = torch.einsum('bhmn,bhand->bhamd', message, k_embed)
-    
- 
-        #edge_hidden = message.unsqueeze(-1) * k_embed
+        q_embed = q_embed.unsqueeze(2)
+        k_embed = k_embed.unsqueeze(1)
         
-        node_hidden = self.out_n(node_hidden.view(b, n, c))
-        edge_hidden = self.out_e(edge_hidden.reshape(b1, n1, n2, c1))
+        attn = q_embed * k_embed
         
-        return node_hidden, edge_hidden, message
+        attn = attn/ math.sqrt(self.d_k)
+        
+     
+        attn = attn * (e_embed + 1) * e_embed
+
+        edge = self.out_e(attn.flatten(3))  
+      
+        attn = F.softmax(attn, dim=2)
+        
+        v_embed = v_embed.unsqueeze(1)
+  
+        v_embed = attn * v_embed
+        
+        v_embed = v_embed.sum(dim=2).flatten(2)
+        
+        node  = self.out_n(v_embed)
+           
+        return node, edge
 
 class Encoder_Block(nn.Module):
-    def __init__(self, dim, heads, mlp_ratio=4, drop_rate=0.):
+    def __init__(self, dim, heads,act, mlp_ratio=4, drop_rate=0., ):
         super().__init__()
         self.ln1 = nn.LayerNorm(dim)
-        self.ln2 = nn.LayerNorm(dim)
-        self.attn = Attention_new(dim, heads, drop_rate, drop_rate)
+   
+        self.attn = Attention_new(dim, heads, act, drop_rate, drop_rate)
         self.ln3 = nn.LayerNorm(dim)
         self.ln4 = nn.LayerNorm(dim)
-        self.mlp = MLP(dim, dim*mlp_ratio, dropout=drop_rate)
-        self.mlp2 = MLP(dim, dim*mlp_ratio, dropout=drop_rate)
+        self.mlp = MLP(act,dim,dim*mlp_ratio, dim, dropout=drop_rate)
+        self.mlp2 = MLP(act,dim,dim*mlp_ratio, dim, dropout=drop_rate)
         self.ln5 = nn.LayerNorm(dim)
-        self.ln6 = nn.LayerNorm(dim)       
+        self.ln6 = nn.LayerNorm(dim)
 
-    def forward(self, x, y):
+    def forward(self, x,y):
         x1 = self.ln1(x)
-        y1 = self.ln2(y)
-        x2, y2, attn = self.attn(x1, y1)
+        x2,y1 = self.attn(x1,y)
         x2 = x1 + x2
-        y2 = y1 + y2
-        x2 = self.ln3(x2)
-        y2 = self.ln4(y2)
+        y2 = y1 + y
+        x2 = self.ln3(x2)   
+        y2 = self.ln4(y2)   
+        
         x = self.ln5(x2 + self.mlp(x2))
         y = self.ln6(y2 + self.mlp2(y2))
-        return x, y, attn
+        return x, y
 
 
 class TransformerEncoder(nn.Module):
-    def __init__(self, dim, depth, heads, mlp_ratio=4, drop_rate=0.1):
+    def __init__(self, dim, depth, heads, act, mlp_ratio=4, drop_rate=0.1):
         super().__init__()
         
         self.Encoder_Blocks = nn.ModuleList([
-            Encoder_Block(dim, heads, mlp_ratio, drop_rate)
+            Encoder_Block(dim, heads, act, mlp_ratio, drop_rate)
             for i in range(depth)])
 
-    def forward(self, x, y):
+    def forward(self, x,y):
         
         for Encoder_Block in self.Encoder_Blocks:
-            x, y, attn = Encoder_Block(x, y)
+            x,  y = Encoder_Block(x,y)
             
-        return x, y, attn
+        return x, y
 
 class enc_dec_attention(nn.Module):
-    def __init__(self, dim, heads=4, attention_dropout=0., proj_dropout=0.):
+    def __init__(self, dim, heads, attention_dropout=0., proj_dropout=0.):
         super().__init__()
-
+        self.dim = dim
         self.heads = heads
         self.scale = 1./dim**0.5
-        #self.scale = torch.div(1, torch.pow(dim, 0.5)) #1./torch.pow(dim, 0.5) #dim**0.5 torch.div(x, 0.5)
+ 
         
         "query is molecules"
-        "key is protein"
+        "key is prot"
         "values is again molecule"
         self.q_mx = nn.Linear(dim,dim)
         self.k_px = nn.Linear(dim,dim)
         self.v_mx = nn.Linear(dim,dim)
         
-        self.q_ma = nn.Linear(dim,dim)
+        
         self.k_pa = nn.Linear(dim,dim)
         self.v_ma = nn.Linear(dim,dim)
         
     
-        self.attention_dropout = nn.Dropout(attention_dropout)
-        self.out_mx = nn.Sequential(
-            nn.Linear(dim, dim),
-            nn.Dropout(proj_dropout)
-        )
-        self.out_ma = nn.Sequential(
-            nn.Linear(dim, dim),
-            nn.Dropout(proj_dropout)
-        )        
-        #self.noise_strength_1 = torch.nn.Parameter(torch.zeros([]))
-        self.dropout_dec = nn.Dropout(proj_dropout)
 
+ 
+    
+        #self.dropout_dec = nn.Dropout(proj_dropout)
+        self.out_nd = nn.Linear(dim, dim)
+        self.out_ed = nn.Linear(dim,dim)
+        
     def forward(self, mol_annot, prot_annot, mol_adj, prot_adj):
-        # query_mol_annot.shape = (batch, h, max_length, d_e) 16,4,25,128
-        # key_prot_annot.shape = (batch, h, max_length, d_e)  16,4,500,128
-        # value_mol_annot.shape = (batch, h, max_length, d_e) 16,4,25,128
-        
-        # query_mol_adj.shape = (batch, h, max_length, max_length, d_e) 16,4,25,25,128
-        # key_prot_adj.shape = (batch, h, max_length, max_length, d_e)  16,4,500,500,128
-        # value_mol_adj.shape = (batch, h, max_length, max_length, d_e) 16,4,25,25,128
-        
-        # out_scores.shape = (batch, h, max_length, max_length) 16,4,25,25
-        # in_scores.shape = (batch, h, max_length, max_length) 
         
         b, n, c = mol_annot.shape
-        bp, np, cp = prot_annot.shape
+        _, m, _ = prot_annot.shape
+     
         
-        b1, n1, n2, c1 = mol_adj.shape
-        bpa, npa, npa2, cpa = prot_adj.shape
+        query_mol_annot = self.q_mx(mol_annot).view(-1,m, self.heads, c//self.heads)
+        key_prot_annot = self.k_px(prot_annot).view(-1,n, self.heads, c//self.heads)
+        value_mol_annot = self.v_mx(mol_annot).view(-1,m, self.heads, c//self.heads)
         
-        query_mol_annot = self.q_mx(mol_annot).view(-1,self.heads, n, c//self.heads)
-        key_prot_annot = self.k_px(prot_annot).view(-1,self.heads, np, cp//self.heads)
-        value_mol_annot = self.v_mx(mol_annot).view(-1,self.heads, n, c//self.heads)
+        mol_e = self.v_ma(mol_adj).view(-1,m,m, self.heads, c//self.heads)
+        prot_e = self.k_pa(prot_adj).view(-1,m,m, self.heads, c//self.heads)
         
-        query_mol_adj = self.q_ma(mol_adj).view(-1, self.heads, n1, n2, c1//self.heads)
-        key_prot_adj = self.k_pa(prot_adj).view(-1, self.heads, npa, npa2, cpa//self.heads)
-        value_mol_adj = self.v_ma(mol_adj).view(-1, self.heads, n1, n2, c1//self.heads)
+        query_mol_annot = query_mol_annot.unsqueeze(2)
+        key_prot_annot = key_prot_annot.unsqueeze(1)
         
         
-        out_scores = torch.einsum('bhmd,bhnd->bhmn', query_mol_annot, key_prot_annot) / math.sqrt(self.scale) # 16, 4, 25, 128 ------ 16, 4, 500, 128
-        in_scores = torch.einsum('bhmd,bhnd->bhnm', query_mol_annot, key_prot_annot) / math.sqrt(self.scale)
-        #out_scores = out_scores * adj_matrix.unsqueeze(1)
         
-        out_attn = F.softmax(out_scores, dim=-1)
-        in_attn = F.softmax(in_scores, dim=-1)
-        #diag_attn = torch.diag_embed(torch.diagonal(out_attn, dim1=-2, dim2=-1), dim1=-2, dim2=-1)
-
-        message = out_attn + in_attn.permute(0,1,3,2) #- diag_attn
-
-        # add the diffusion caused by distance
-        #message = message * adj_matrix.unsqueeze(1)
-
-        message = self.dropout_dec(message)
-
-        node_hidden = torch.einsum('bhmn,bhmd->bhmd', message, value_mol_annot)
-
-
-        out_scores_e = torch.einsum('bhmnd,bhkjd->bhmn', query_mol_adj, key_prot_adj) / math.sqrt(self.scale)
-        in_scores_e = torch.einsum('bhmnd,bhkjd->bhnm', query_mol_adj, key_prot_adj) / math.sqrt(self.scale)
+        #attn = torch.einsum('bnchd,bmahd->bnahd', query_mol_annot, key_prot_annot)
         
-        out_attn_e = F.softmax(out_scores_e, dim=-1)
-        in_attn_e = F.softmax(in_scores_e, dim=-1)
-        #diag_attn_e = torch.diag_embed(torch.diagonal(out_attn_e, dim1=-2, dim2=-1), dim1=-2, dim2=-1)    
-        #out_scores_e = out_scores_e * adj_matrix.unsqueeze(1)
+        attn = query_mol_annot * key_prot_annot
         
-        message_e = out_attn_e + in_attn_e.permute(0,1,3,2) #- diag_attn_e
+        attn = attn/ math.sqrt(self.dim)
 
-        edge_hidden = torch.einsum('bhmn,bhmkd->bhmnd', message_e, value_mol_adj)
+        
+        attn = attn * (prot_e + 1) * mol_e      
+      
+        prot_e = attn.flatten(3)
+        
+        mol_adj = self.out_ed(prot_e)
+        
+        attn = F.softmax(attn, dim=2)
+        
+        value_mol_annot = value_mol_annot.unsqueeze(1)
+        
+        value_mol_annot = attn * value_mol_annot
+        
+        value_mol_annot = value_mol_annot.sum(dim=2).flatten(2)
+        
+        mol_annot  = self.out_nd(value_mol_annot)          
 
-        message_e = self.dropout_dec(message_e)
-
-        node_hidden = self.out_mx(node_hidden.view(b, n, c))
-        edge_hidden = self.out_ma(edge_hidden.reshape(b1, n1, n2, c1))        
-
-        return edge_hidden, node_hidden, message
+        return mol_annot, prot_annot, mol_adj, prot_adj
 
 class Decoder_Block(nn.Module):
     def __init__(self, dim, heads, mlp_ratio=4, drop_rate=0.):
@@ -243,8 +209,8 @@ class Decoder_Block(nn.Module):
         self.ln3_ma = nn.LayerNorm(dim)
         self.ln3_mx = nn.LayerNorm(dim)
 
-        self.mlp_ma = MLP(dim, dim*mlp_ratio, dropout=drop_rate)
-        self.mlp_mx = MLP(dim, dim*mlp_ratio, dropout=drop_rate)
+        self.mlp_ma = MLP(dim, dim, dropout=drop_rate)
+        self.mlp_mx = MLP(dim, dim, dropout=drop_rate)
        
         self.ln4_ma = nn.LayerNorm(dim)
         self.ln4_mx = nn.LayerNorm(dim)
@@ -252,38 +218,38 @@ class Decoder_Block(nn.Module):
         
     def forward(self,mol_annot, prot_annot, mol_adj, prot_adj):
 
-        mx = self.ln1_mx(mol_annot)
-        px = self.ln1_px(prot_annot)
+        mol_annot = self.ln1_mx(mol_annot)
+        mol_adj = self.ln1_ma(mol_adj)
         
-        ma = self.ln1_ma(mol_adj)
-        pa = self.ln1_pa(prot_adj)
+        prot_annot = self.ln1_px(prot_annot)
+        prot_adj = self.ln1_pa(prot_adj)
         
-        px1, pa1, prot_attn = self.attn2(px, pa)
+        px1, pa1= self.attn2(prot_annot, prot_adj)
         
-        px1 = px + px1
-        pa1 = pa + pa1
+        prot_annot = prot_annot + px1
+        prot_adj = prot_adj + pa1
         
-        px1 = self.ln2_px(px1)
-        pa1 = self.ln2_pa(pa1)
+        prot_annot = self.ln2_px(prot_annot)
+        prot_adj = self.ln2_pa(prot_adj)
         
-        ma1, mx1, attn_dec = self.dec_attn(mx,px1,ma,pa1)
+        mx1, prot_annot, ma1, prot_adj  = self.dec_attn(mol_annot,prot_annot,mol_adj,prot_adj)
         
-        ma1 = ma + ma1
-        mx1 = mx + mx1
+        ma1 = prot_adj + ma1
+        px1 = prot_annot + px1
         
-        ma1 = self.ln3_ma(ma1)
-        mx1 = self.ln3_mx(mx1)
+        pa1 = self.ln3_ma(pa1)
+        px1 = self.ln3_mx(px1)
         
-        ma2 = self.mlp_ma(ma1)
-        mx2 = self.mlp_mx(mx1)
+        pa2 = self.mlp_ma(pa1)
+        px2 = self.mlp_mx(px1)
         
-        ma2 = ma2 + ma1
-        mx2 = mx2 + mx1
+        pa2 = pa2 + pa1
+        px2 = px2 + px1
         
-        edge_hidden = self.ln4_ma(ma2)
-        node_hidden = self.ln4_mx(mx2)        
+        prot_adj = self.ln4_ma(pa2)
+        prot_annot = self.ln4_mx(px2)        
     
-        return edge_hidden, node_hidden, attn_dec
+        return mol_annot, prot_annot, mol_adj, prot_adj
     
 class TransformerDecoder(nn.Module):
     def __init__(self, dim,  depth, heads, mlp_ratio=4, drop_rate=0.):
@@ -296,13 +262,13 @@ class TransformerDecoder(nn.Module):
     def forward(self, mol_annot, prot_annot, mol_adj, prot_adj):
         
         for Decoder_Block in self.Decoder_Blocks:
-            edge_hidden, node_hidden, message = Decoder_Block(mol_annot, prot_annot, mol_adj, prot_adj)
+            mol_annot, prot_annot, mol_adj, prot_adj  = Decoder_Block(mol_annot, prot_annot, mol_adj, prot_adj)
             
-        return edge_hidden, node_hidden, message
+        return mol_annot, prot_annot,mol_adj, prot_adj
 
 
 
-class PNA(torch.nn.Module):
+"""class PNA(torch.nn.Module):
     def __init__(self,deg,agg,sca,pna_in_ch,pna_out_ch,edge_dim,towers,pre_lay,post_lay,pna_layer_num, graph_add):
         super(PNA,self).__init__()
                                                                  
@@ -351,12 +317,12 @@ class PNA(torch.nn.Module):
             #x = self.graph_multitrans(x,batch.squeeze(),edge_index)
         x = self.mlp(x)
 
-        return  x
+        return  x"""
 
 
 
 
-class GraphConvolution(nn.Module):
+"""class GraphConvolution(nn.Module):
 
     def __init__(self, in_features, out_feature_list, b_dim, dropout,gcn_depth):
         super(GraphConvolution, self).__init__()
@@ -426,9 +392,9 @@ class GraphAggregation(Module):
                  else output
         output = self.dropout(output)
 
-        return output
+        return output"""
 
-class Attention(nn.Module):
+"""class Attention(nn.Module):
     def __init__(self, dim, heads=4, attention_dropout=0., proj_dropout=0.):
         super().__init__()
         self.heads = heads
@@ -463,7 +429,7 @@ class Attention(nn.Module):
 
         x = self.out(x)
      
-        return x, attn
+        return x, attn"""
     
     
     
