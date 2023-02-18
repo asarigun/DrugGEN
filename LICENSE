@@ -1,4 +1,4 @@
-DrugGEN: Target Centric De Novo Design of Drug Candidate Molecules with Graph Generative Deep Adversarial Networks
+DrugGEN: DrugGEN: Target Specific De Novo Design of Drug Candidate Molecules with Graph Transformer-based Generative Adversarial Networks
 SOFTWARE LICENSE AGREEMENT
 ACADEMIC OR NON-PROFIT ORGANIZATION NONCOMMERCIAL RESEARCH USE ONLY
 
@@ -6,7 +6,7 @@ BY USING OR DOWNLOADING THE SOFTWARE, YOU ARE AGREEING TO THE TERMS OF THIS LICE
 IF YOU DO NOT AGREE WITH THESE TERMS, YOU MAY NOT USE OR DOWNLOAD THE SOFTWARE.
 
 This is a license agreement ("Agreement") between your academic institution or non-profit organization or self
-(called "Licensee" or "You" in this Agreement) and Carnegie Mellon University (called "Licensor" in this Agreement).
+(called "Licensee" or "You" in this Agreement) and Ahmet Sarigun (called "Licensor" in this Agreement).
 All rights not specifically granted to you in this Agreement are reserved for Licensor.
 
 RESERVATION OF OWNERSHIP AND GRANT OF LICENSE:
@@ -44,7 +44,7 @@ in or on the original labels, including the copyright and trademark notices are 
 
 USES NOT PERMITTED:  You may not distribute, copy or use the Software except as explicitly permitted herein.
 Licensee has not been granted any trademark license as part of this Agreement and may not use the name or mark
-“DrugGEN", "Middle East Technical University" or any renditions thereof without
+“DrugGEN", "Middle East Technical University", "Ahmet Sarigun" or any renditions thereof without
 the prior written permission of Licensor.
 
 You may not sell, rent, lease, sublicense, lend, time-share or transfer, in whole or in part, or provide third
