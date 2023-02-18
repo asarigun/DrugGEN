@@ -3,9 +3,9 @@
 
 
 <p align="center">
-  <a href="Give a link here"><img src="https://img.shields.io/badge/paper-report-red"/></a>
+  <a href="https://arxiv.org/abs/2302.07868"><img src="https://img.shields.io/badge/paper-report-red"/></a>
   <a href=https://github.com/asarigun/DrugGEN/blob/main/LICENSE><img src="https://img.shields.io/badge/See%20-License%20-blue"/></a>
-  <a href="Give a link here" alt="license"><img src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
+  <!--<a href="Give a link here" alt="license"><img src="https://colab.research.google.com/assets/colab-badge.svg"/></a>-->
 </p>
 
 <!--PUT HERE SOME QUALITATIVE RESULTS IN THE ASSETS FOLDER-->
@@ -20,18 +20,18 @@
   <img src="assets/druggen_figure1_mod.gif" width="98%" />
 </p>
 
+<!--
 ## Abstract
 
 > Discovering novel drug candidate molecules is one of the most fundamental and critical steps in drug development. Generative deep learning models, which create synthetic data given a probability distribution, have been developed with the purpose of picking completely new samples from a partially known space. Generative models offer high potential for designing de novo molecules; however, in order for them to be useful in real-life drug development pipelines, these models should be able to design target-specific molecules, which is the next step in this field. In this study, we propose a novel generative system, DrugGEN, for de novo design of drug candidate molecules that interact with selected target proteins. The proposed system represents compounds and protein structures as graphs and processes them via serially connected two generative adversarial networks comprising graph transformers. DrugGEN is implemented with five independent models, each with a unique sample generation routine. The system is trained using a large dataset of compounds from ChEMBL and target-specific bioactive molecules, to design effective and specific inhibitory molecules against the AKT1 protein, effective targeting of which has critical importance for developing treatments against various types of cancer. DrugGEN has a competitive or better performance against other methods on fundamental benchmarks. To assess the target-specific generation performance, we conducted further in silico analysis with molecular docking and deep learning-based bioactivity prediction. Their results indicate that de novo molecules have high potential for interacting with the AKT1 protein structure in the level of its native ligand. DrugGEN can be used to design completely novel and effective target-specific drug candidate molecules for any druggable protein, given the target features and a dataset of experimental bioactivities.
+-->
 
-**Preprint will be published soon!**
 
-<!--Check out our paper below for more details
+Check out our paper below for more details
 
-> [**DrugGEN: Target Centric De Novo Design of Drug Candidate Molecules with Graph Generative Deep Adversarial Networks
-**](link here),            
+> [**DrugGEN: Target Centric De Novo Design of Drug Candidate Molecules with Graph Generative Deep Adversarial Networks**](https://arxiv.org/abs/2302.07868),            
 > [Atabey Ünlü](https://tr.linkedin.com/in/atabeyunlu), [Elif Çevrim](https://www.linkedin.com/in/elifcevrim/?locale=en_US), [Ahmet Sarıgün](https://asarigun.github.io/), [Heval Ataş](https://www.linkedin.com/in/heval-atas/), [Altay Koyaş](https://www.linkedin.com/in/altay-koya%C5%9F-8a6118a1/?originalSubdomain=tr), [Hayriye Çelikbilek](https://www.linkedin.com/in/hayriye-celikbilek/?originalSubdomain=tr), [Deniz Cansen Kahraman](https://www.linkedin.com/in/deniz-cansen-kahraman-6153894b/?originalSubdomain=tr), [Abdurrahman Olğaç](https://www.linkedin.com/in/aolgac/?originalSubdomain=tr), [Ahmet S. Rifaioğlu](https://saezlab.org/person/ahmet-sureyya-rifaioglu/), [Tunca Doğan](https://yunus.hacettepe.edu.tr/~tuncadogan/)     
-> *Arxiv, 2023* -->
+> *Arxiv, 2023*
 
 
 
@@ -68,9 +68,10 @@ We provide the implementation of the DrugGEN, along with scripts from PyTorch Ge
 
 ```experiments``` contains: 
 - ```logs``` folder. Model loss and performance metrics will be saved in this directory in seperate files for each model. 
-- ```results``` folder. Tensorboard files will be saved here if TensorBoard is used.
+- ```tboard_output``` folder. Tensorboard files will be saved here if TensorBoard is used.
 - ```models``` folder. Models will be saved in this directory at last or preferred steps. 
 - ```samples``` folder. Molecule samples will be saved in this folder.
+- ```inference``` folder. Molecules generated in inference mode will be saved in this folder.
 
 **Python scripts are:**
 
@@ -92,6 +93,7 @@ More details on the construction of datasets can be found in our paper reference
 
 ## Updates
 
+- 15/02/2023: Our pre-print is shared [here](https://github.com/asarigun/DrugGEN/files/10746530/DrugGEN_Arxiv_formatted_submitted_15.02.2023.pdf) together with its supplementary material document [link](https://github.com/asarigun/DrugGEN/files/10746548/Druggen_Arxiv_submitted_Supplementary_Materials_15.02.2023.pdf).
 - 01/01/2023: First version script of DrugGEN is released.
 
 ## Getting Started
@@ -167,6 +169,20 @@ Dataset arguments:
   --features FEATURES       Additional node features (Boolean) (Please check new_dataloader.py Line 102)
 ```
 
+## Molecule Generation Using Trained DrugGEN Models in the Inference Mode
+
+
+- First, please download the model weights of trained model, e.g., [DrugGEN-Prot](https://drive.google.com/drive/folders/19knQAtpieSamaxB4L5ft8bFiCVikBFDS?usp=share_link) and place it in the folder: "DrugGEN/experiments/models/".
+- After that, please run the code below:
+
+
+```bash
+
+python DrugGEN/main.py --submodel="Prot" --mode="inference" --inference_model="DrugGEN/experiments/models/{Chosen model name}"
+```
+
+- SMILES representation of the generated molecules will be saved into the file: "DrugGEN/experiments/inference/{Chosen submodel name}/denovo_molecules.txt".
+
 ## De Novo Generated Molecules and its AKT1 inhibitor subset
 - SMILES notations of 50,000 de novo generated molecules from DrugGEN models (10,000 from each) can be downloaded from [here](results/generated_molecules). 
 - We first filtered the 50,000 de novo generated molecules by applying Lipinski, Veber and PAINS filters; and 43,000 of them remained in our dataset after this operation ([SMILES notations of filtered de novo molecules](results/generated_molecules/filtered_all_generated_molecules.smi)).
@@ -177,6 +193,15 @@ Dataset arguments:
 ![structures](assets/Selected_denovo_AKT1_inhibitors.png)
 
 ## Citation
+
+```bibtex
+@article{unlu2023target,
+  title={Target Specific De Novo Design of Drug Candidate Molecules with Graph Transformer-based Generative Adversarial Networks},
+  author={{\"U}nl{\"u}, Atabey and {\c{C}}evrim, Elif and Sar{\i}g{\"u}n, Ahmet and {\c{C}}elikbilek, Hayriye and G{\"u}venilir, Heval Ata{\c{s}} and Koya{\c{s}}, Altay and Kahraman, Deniz Cansen and Rifaio{\u{g}}lu, Ahmet and Ol{\u{g}}a{\c{c}}, Abdurrahman},
+  journal={arXiv preprint arXiv:2302.07868},
+  year={2023}
+}
+```
 <!--ADD BIBTEX AFTER THE PUBLISHING-->
 
 ## License
