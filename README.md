@@ -93,7 +93,7 @@ More details on the construction of datasets can be found in our paper reference
 
 ## Updates
 
-- 15/02/2023: Our pre-print is shared [here](https://github.com/asarigun/DrugGEN/files/10746530/DrugGEN_Arxiv_formatted_submitted_15.02.2023.pdf) together with its supplementary material document [link](https://github.com/asarigun/DrugGEN/files/10746548/Druggen_Arxiv_submitted_Supplementary_Materials_15.02.2023.pdf).
+- 15/02/2023: Our pre-print is shared [here](assets/DrugGEN_Arxiv_formatted_submitted.pdf) together with its supplementary material document [link](assets/Druggen_Arxiv_submitted_Supplementary_Materials.pdf).
 - 01/01/2023: First version script of DrugGEN is released.
 
 ## Getting Started
