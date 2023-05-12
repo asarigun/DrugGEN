@@ -258,7 +258,8 @@ class Trainer(object):
                            dim=self.dim, 
                            depth=self.depth, 
                            heads=self.heads, 
-                           mlp_ratio=self.mlp_ratio)
+                           mlp_ratio=self.mlp_ratio,
+                           submodel = self.submodel)
          
         self.G2 = Generator2(self.dim,
                            self.dec_dim,
@@ -569,8 +570,8 @@ class Trainer(object):
                     GAN2_disc_e = drugs_a_tensor
                     GAN2_disc_x = drugs_x_tensor            
                 elif self.submodel == "Prot":        
-                    GAN1_input_e = z_edge + a_tensor
-                    GAN1_input_x = z_node + x_tensor
+                    GAN1_input_e =  a_tensor
+                    GAN1_input_x = x_tensor
                     GAN1_disc_e = a_tensor
                     GAN1_disc_x = x_tensor
                     GAN2_input_e = akt1_human_adj

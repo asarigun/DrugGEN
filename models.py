@@ -5,10 +5,10 @@ from layers import TransformerEncoder, TransformerDecoder
 
 class Generator(nn.Module):
     """Generator network."""
-    def __init__(self,z_dim, act, vertexes, edges, nodes, dropout, dim, depth, heads, mlp_ratio):
+    def __init__(self,z_dim, act, vertexes, edges, nodes, dropout, dim, depth, heads, mlp_ratio, submodel):
         super(Generator, self).__init__()
         
-
+        self.submodel = submodel
         self.vertexes = vertexes
         self.edges = edges
         self.nodes = nodes
@@ -32,15 +32,13 @@ class Generator(nn.Module):
         self.transformer_dim = vertexes * vertexes * dim + vertexes * dim
         self.pos_enc_dim = 5
         #self.pos_enc = nn.Linear(self.pos_enc_dim, self.dim)
-        self.node_layers = nn.Sequential(nn.Linear(nodes,64), act, nn.Linear(64,dim), act, nn.Dropout(self.dropout))
-        self.edge_layers = nn.Sequential(nn.Linear(edges,64), act, nn.Linear(64,dim), act, nn.Dropout(self.dropout))
+        
+        self.node_layers = nn.Sequential(nn.Linear(nodes, 64), act, nn.Linear(64,dim), act, nn.Dropout(self.dropout))
+        self.edge_layers = nn.Sequential(nn.Linear(edges, 64), act, nn.Linear(64,dim), act, nn.Dropout(self.dropout))
         
         self.TransformerEncoder = TransformerEncoder(dim=self.dim, depth=self.depth, heads=self.heads, act = act,
                                                                     mlp_ratio=self.mlp_ratio, drop_rate=self.dropout)         
-     
 
-    
-        
         self.readout_e = nn.Linear(self.dim, edges)
         self.readout_n = nn.Linear(self.dim, nodes)
         self.softmax = nn.Softmax(dim = -1) 
@@ -71,9 +69,13 @@ class Generator(nn.Module):
         #z_e = F.relu(z_e - random_mask_e)
         #z_n = F.relu(z_n - random_mask_n)
 
+        #mask = self._generate_square_subsequent_mask(self.vertexes).to(z_e.device)
+        
         node = self.node_layers(z_n)
         
         edge = self.edge_layers(z_e)
+        
+        edge = (edge + edge.permute(0,2,1,3))/2
         
         #lap = [self.laplacian_positional_enc(torch.max(x,-1)[1]) for x in edge]
         
