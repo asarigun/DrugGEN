@@ -197,7 +197,7 @@ python DrugGEN/main.py --submodel="Prot" --mode="inference" --inference_model="D
 ```bibtex
 @article{unlu2023target,
   title={Target Specific De Novo Design of Drug Candidate Molecules with Graph Transformer-based Generative Adversarial Networks},
-  author={{\"U}nl{\"u}, Atabey and {\c{C}}evrim, Elif and Sar{\i}g{\"u}n, Ahmet and {\c{C}}elikbilek, Hayriye and G{\"u}venilir, Heval Ata{\c{s}} and Koya{\c{s}}, Altay and Kahraman, Deniz Cansen and Rifaio{\u{g}}lu, Ahmet and Ol{\u{g}}a{\c{c}}, Abdurrahman},
+  author={{\"U}nl{\"u}, Atabey and {\c{C}}evrim, Elif and Sar{\i}g{\"u}n, Ahmet and {\c{C}}elikbilek, Hayriye and G{\"u}venilir, Heval Ata{\c{s}} and Koya{\c{s}}, Altay and Kahraman, Deniz Cansen, Ol{\u{g}}a{\c{c}}, Abdurrahman, and Rifaio{\u{g}}lu, Ahmet, and Dogan, Tunca},
   journal={arXiv preprint arXiv:2302.07868},
   year={2023}
 }
