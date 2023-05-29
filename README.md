@@ -3,7 +3,9 @@
 
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2302.07868"><img src="https://img.shields.io/badge/paper-report-red"/></a>
+  <a href="https://arxiv.org/abs/2302.07868"><img src="https://img.shields.io/badge/arXiv-preprint-B31B1B?style-for-the-badge&logo=arXiv"/></a>
+  <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-Implementation-EE4C2C?style-for-the-badge&logo=PyTorch"/></a>
+  <a href="https://pytorch-geometric.readthedocs.io/en/latest/"><img src="https://img.shields.io/badge/PyG-Implementation-3C2179?style-for-the-badge&logo=PyG"/></a>
   <a href=https://github.com/asarigun/DrugGEN/blob/main/LICENSE><img src="https://img.shields.io/badge/See%20-License%20-blue"/></a>
   <!--<a href="Give a link here" alt="license"><img src="https://colab.research.google.com/assets/colab-badge.svg"/></a>-->
 </p>
@@ -41,7 +43,7 @@ Check out our paper below for more details
 
 This implementation:
 
-- has the demo and training code for DrugGEN implemented in PyTorch Geometric,
+- has the demo and training code for DrugGEN implemented in ![badge](https://img.shields.io/badge/PyTorch--EE4C2C?style-for-the-badge&logo=PyTorch) & ![badge](https://img.shields.io/badge/PyG--3C2179?style-for-the-badge&logo=PyG),
 - can design de novo drugs based on their protein interactions,
 <!-- - supports both CPU and GPU inference (though GPU is way faster), -->
 <!-- ADD HERE SOME FEATURES FOR DRUGGEN & SUMMARIES & BULLET POINTS -->
@@ -93,7 +95,7 @@ More details on the construction of datasets can be found in our paper reference
 
 ## Updates
 
-- 15/02/2023: Our pre-print is shared [here](assets/DrugGEN_Arxiv_formatted_submitted.pdf) together with its supplementary material document [link](assets/Druggen_Arxiv_submitted_Supplementary_Materials.pdf).
+- 15/02/2023: Our <a href="https://arxiv.org/abs/2302.07868"><img src="https://img.shields.io/badge/arXiv-preprint-B31B1B?style-for-the-badge&logo=arXiv"/></a> is shared [here](assets/DrugGEN_Arxiv_formatted_submitted.pdf) together with its supplementary material document [link](assets/Druggen_Arxiv_submitted_Supplementary_Materials.pdf).
 - 01/01/2023: First version script of DrugGEN is released.
 
 ## Getting Started
@@ -122,10 +124,37 @@ It enables cost-free project execution in the cloud. You can use the provided no
 
 ## Training
 
+### Setting up environment
+
+You can set up the environment using either conda or pip.
+
+Here is with conda:
+
 ```bash
+# set up the environment (installs the requirements):
+
+conda env create -f DrugGEN/dependencies.yml
+
+# activate the environment:
+
 conda activate druggen
+```
+
+Here is with pip using virtual environment:
+
+```bash
+python -m venv DrugGEN/.venv
+./Druggen/.venv/bin/activate
+pip install -r DrugGEN/requirements.txt
+```
+
+### Starting the training
+
+```bash
 
 # Download the raw files
+
+cd DrugGEN/data
 
 bash dataset_download.sh
 
