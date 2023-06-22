@@ -107,7 +107,7 @@ if __name__ == '__main__':
     
     parser.add_argument('--num_test_epoch', type=int, default=30000, help='inference epoch')
     
-    parser.add_argument('--inference_sample_num', type=int, default=30000, help='inference samples')
+    parser.add_argument('--inference_sample_num', type=int, default=1000, help='inference samples')
     
     # Miscellaneous.
     parser.add_argument('--num_workers', type=int, default=1)
@@ -115,6 +115,8 @@ if __name__ == '__main__':
     parser.add_argument('--mode', type=str, default='train', choices=['train', 'inference'])
     
     parser.add_argument('--inference_iterations', type=int, default=100, help='Number of iterations for inference')
+    
+    parser.add_argument('--inf_batch_size', type=int, default=1, help='Batch size for inference')
     
     # Directories.
     parser.add_argument('--protein_data_dir', type=str, default='DrugGEN/data/akt')      

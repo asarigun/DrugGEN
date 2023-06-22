@@ -19,7 +19,7 @@ RDLogger.DisableLog('rdApp.*')
 from loss import discriminator_loss, generator_loss, discriminator2_loss, generator2_loss
 from training_data import load_data
 import random
-
+from tqdm import tqdm
 
 class Trainer(object):
     
@@ -57,7 +57,10 @@ class Trainer(object):
         
         self.inf_drugs_dataset_file = config.inf_drug_dataset_file  # Drug dataset file name for the second GAN. 
                                                             # Contains drug molecules only. (In this case AKT1 inhibitors.)
-
+        self.inference_iterations = config.inference_iterations
+        
+        self.inf_batch_size = config.inf_batch_size
+        
         self.mol_data_dir = config.mol_data_dir  # Directory where the dataset files are stored.
         
         self.drug_data_dir = config.drug_data_dir  # Directory where the drug dataset files are stored.
@@ -577,8 +580,8 @@ class Trainer(object):
                     GAN2_disc_e = drugs_a_tensor
                     GAN2_disc_x = drugs_x_tensor        
                 elif self.submodel == "RL":
-                    GAN1_input_e = z_edge
-                    GAN1_input_x = z_node
+                    GAN1_input_e = a_tensor
+                    GAN1_input_x = x_tensor
                     GAN1_disc_e = a_tensor
                     GAN1_disc_x = x_tensor
                     GAN2_input_e = drugs_a_tensor
@@ -586,8 +589,8 @@ class Trainer(object):
                     GAN2_disc_e = drugs_a_tensor
                     GAN2_disc_x = drugs_x_tensor    
                 elif self.submodel == "NoTarget":
-                    GAN1_input_e = z_edge 
-                    GAN1_input_x = z_node 
+                    GAN1_input_e = a_tensor 
+                    GAN1_input_x = x_tensor 
                     GAN1_disc_e = a_tensor
                     GAN1_disc_x = x_tensor                                                  
                     
@@ -639,9 +642,10 @@ class Trainer(object):
                                                     GAN1_input_x,
                                                     self.batch_size,
                                                     sim_reward,
-                                                    self.dataset.matrices2mol_drugs,
+                                                    self.dataset.matrices2mol,
                                                     fps_r,
-                                                    self.submodel)        
+                                                    self.submodel,
+                                                    self.dataset_name)        
                 
                 g_loss, fake_mol, g_edges_hat_sample, g_nodes_hat_sample, node, edge = generator_output    
             
@@ -659,7 +663,8 @@ class Trainer(object):
                                                 fps_r,
                                                 GAN2_input_e,
                                                 GAN2_input_x,
-                                                self.submodel)
+                                                self.submodel,
+                                                self.drugs_name)
                 
                     g2_loss, fake_mol_g, dr_g_edges_hat_sample, dr_g_nodes_hat_sample = output     
                 
@@ -701,8 +706,9 @@ class Trainer(object):
         
         G_path = os.path.join(self.inference_model, '{}-G.ckpt'.format(self.submodel))
         self.G.load_state_dict(torch.load(G_path, map_location=lambda storage, loc: storage))
-        G2_path = os.path.join(self.inference_model, '{}-G2.ckpt'.format(self.submodel))
-        self.G2.load_state_dict(torch.load(G2_path, map_location=lambda storage, loc: storage))        
+        if self.submodel != "NoTarget" and self.submodel != "CrossLoss":
+            G2_path = os.path.join(self.inference_model, '{}-G2.ckpt'.format(self.submodel))
+            self.G2.load_state_dict(torch.load(G2_path, map_location=lambda storage, loc: storage))           
         
         
         drug_smiles = [line for line in open("DrugGEN/data/akt_test.smi", 'r').read().splitlines()]
@@ -718,8 +724,9 @@ class Trainer(object):
         #self.D.eval()
         self.G2.eval()
         #self.D2.eval()
+
+        step = self.inference_iterations
         
-        self.inf_batch_size =256
         self.inf_dataset = DruggenDataset(self.mol_data_dir,
                                       self.inf_dataset_file, 
                                       self.inf_raw_file, 
@@ -757,20 +764,21 @@ class Trainer(object):
             os.makedirs("DrugGEN/experiments/inference/{}".format(self.submodel))
         with torch.inference_mode():
             
-            dataloader_iterator = iter(self.drugs_loader)
-            
-            for i, data in enumerate(self.loader):   
+            dataloader_iterator = iter(self.inf_drugs_loader)
+            pbar = tqdm(range(self.inference_sample_num))
+            pbar.set_description('Inference mode for {} model started'.format(self.submodel))
+            for i, data in enumerate(self.inf_loader):   
                 try:
                     drugs = next(dataloader_iterator)
                 except StopIteration:
-                    dataloader_iterator = iter(self.drugs_loader)
+                    dataloader_iterator = iter(self.inf_drugs_loader)
                     drugs = next(dataloader_iterator)
 
                 # Preprocess both dataset 
                 
                 bulk_data = load_data(data,
                                      drugs,
-                                     self.batch_size, 
+                                     self.inf_batch_size, 
                                      self.device,
                                      self.b_dim,
                                      self.m_dim,
@@ -809,8 +817,8 @@ class Trainer(object):
                     GAN2_disc_e = drugs_a_tensor
                     GAN2_disc_x = drugs_x_tensor        
                 elif self.submodel == "RL":
-                    GAN1_input_e = z_edge
-                    GAN1_input_x = z_node
+                    GAN1_input_e = a_tensor
+                    GAN1_input_x = x_tensor
                     GAN1_disc_e = a_tensor
                     GAN1_disc_x = x_tensor
                     GAN2_input_e = drugs_a_tensor
@@ -818,8 +826,8 @@ class Trainer(object):
                     GAN2_disc_e = drugs_a_tensor
                     GAN2_disc_x = drugs_x_tensor    
                 elif self.submodel == "NoTarget":
-                    GAN1_input_e = z_edge
-                    GAN1_input_x = z_node
+                    GAN1_input_e = a_tensor
+                    GAN1_input_x = x_tensor
                     GAN1_disc_e = a_tensor
                     GAN1_disc_x = x_tensor      
                 # =================================================================================== #
@@ -830,42 +838,38 @@ class Trainer(object):
                                                     self.V,
                                                     GAN1_input_e,
                                                     GAN1_input_x,
-                                                    self.batch_size,
+                                                    self.inf_batch_size,
                                                     sim_reward,
-                                                    self.dataset.matrices2mol_drugs,
+                                                    self.dataset.matrices2mol,
                                                     fps_r,
-                                                    self.submodel)   
+                                                    self.submodel,
+                                                    self.dataset_name)   
                 
-                _, fake_mol, _, _, node, edge = generator_output  
+                _, fake_mol_g, _, _, node, edge = generator_output  
 
                 # =================================================================================== #
                 #                             3. GAN2 Inference                                       #
                 # =================================================================================== #   
                         
-                output = generator2_loss(self.G2,
-                                            self.D2,
-                                            self.V2,
-                                            edge,
-                                            node,
-                                            self.batch_size,
-                                            sim_reward,
-                                            self.dataset.matrices2mol_drugs,
-                                            fps_r,
-                                            GAN2_input_e,
-                                            GAN2_input_x,
-                                            self.submodel)
+                if self.submodel != "NoTarget" and self.submodel != "CrossLoss":      
+                    output = generator2_loss(self.G2,
+                                                self.D2,
+                                                self.V2,
+                                                edge,
+                                                node,
+                                                self.inf_batch_size,
+                                                sim_reward,
+                                                self.dataset.matrices2mol_drugs,
+                                                fps_r,
+                                                GAN2_input_e,
+                                                GAN2_input_x,
+                                                self.submodel,
+                                                self.drugs_name)
             
-                _, fake_mol_g, _, _ = output     
+                    _, fake_mol_g, edges, nodes = output      
 
                 inference_drugs = [Chem.MolToSmiles(line) for line in fake_mol_g if line is not None]   
-
-
-                
-                #inference_smiles = [Chem.MolToSmiles(line) for line in fake_mol]  
-                 
-                
-
-                print("molecule batch {} inferred".format(i))
+                inference_drugs = [None if x is None else max(x.split('.'), key=len) for x in inference_drugs]
 
                 with open("DrugGEN/experiments/inference/{}/inference_drugs.txt".format(self.submodel), "a") as f:
                     for molecules in inference_drugs:
@@ -874,9 +878,10 @@ class Trainer(object):
                         f.write("\n")
                         metric_calc_dr.append(molecules)
             
-                 
-                                            
-                if i == 120:
+                if len(inference_drugs) > 0:
+                    pbar.update(1)
+                              
+                if len(metric_calc_dr) == self.inference_sample_num:
                     break
         
         et = time.time() - start_time
@@ -885,8 +890,8 @@ class Trainer(object):
         
         print("Metrics calculation started using MOSES.")
                    
-        print("Validity: ", fraction_valid(inference_drugs), "\n")
-        print("Uniqueness: ", fraction_unique(inference_drugs), "\n")
-        print("Validity: ", novelty(inference_drugs, drug_smiles), "\n")
+        print("Validity: ", fraction_valid(metric_calc_dr), "\n")
+        print("Uniqueness: ", fraction_unique(metric_calc_dr), "\n")
+        print("Validity: ", novelty(metric_calc_dr, drug_smiles), "\n")
 
         print("Metrics are calculated.")
