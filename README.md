@@ -248,3 +248,5 @@ In each file, we indicate whether a function or script is imported from another 
 - Graph Transformer architecture of generators was inspired from [Dwivedi & Bresson, 2020](https://arxiv.org/abs/2012.09699)
 - Several [Pytroch Geometric](https://github.com/pyg-team/pytorch_geometric) scripts were used to generate the datasets.
 - Graph Transformer Encoder architecture was taken from [Dwivedi & Bresson (2021)](https://arxiv.org/abs/2012.09699) and [Vignac et al. (2022)](https://github.com/cvignac/DiGress) and modified. 
+
+Check out the latest project repository on <a href="https://github.com/HUBioDataLab/DrugGEN"><img src="https://img.shields.io/badge/Github-UpdatedRepo-181717?style-for-the-badge&logo=GitHub"/></a>!
