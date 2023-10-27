@@ -75,14 +75,14 @@ We provide the implementation of the DrugGEN, along with scripts from PyTorch Ge
 - ```samples``` folder. Molecule samples will be saved in this folder.
 - ```inference``` folder. Molecules generated in inference mode will be saved in this folder.
 
-**Python scripts are:**
+**Python scripts:**
 
-- ```layers.py``` file contains **Transformer Encoder** and **Transformer Decoder** implementations.  
+- ```layers.py``` contains **transformer encoder** and **transformer decoder** implementations.  
 - ```main.py``` contains arguments and this file is used to run the model.   
 - ```models.py``` has the implementation of the **Generators** and **Discriminators** which are used in GAN1 and GAN2.  
 - ```new_dataloader.py``` constructs the graph dataset from given raw data. Uses PyG based data classes.  
 - ```trainer.py``` is the training and testing file for the model. Workflow is constructed in this file.   
-- ```utils.py``` contains performance metrics from several other papers and some unique implementations. (De Cao et al, 2018; Polykovskiy et al., 2020)  
+- ```utils.py``` contains performance metrics from several other papers and some unique implementations. (De Cao et al, 2018; Polykovskiy et al., 2020)
 
 ## Datasets
 Three different data types (i.e., compound, protein, and bioactivity) were retrieved from various data sources to train our deep generative models. GAN1 module requires only compound data while GAN2 requires all of three data types including compound, protein, and bioactivity.
@@ -160,7 +160,7 @@ bash dataset_download.sh
 
 # DrugGEN can be trained with a one-liner
 
-python DrugGEN/main.py --mode="train" --device="cuda" --raw_file="DrugGEN/data/chembl_smiles.smi" --dataset_file="chembl45.pt" -- drug_raw_file="drug_smies.smi" --drug_dataset_file="drugs.pt" --max_atom=45
+python DrugGEN/main.py --submodel="CrossLoss" --mode="train" --raw_file="DrugGEN/data/chembl_train.smi" --dataset_file="chembl45_train.pt" --drug_raw_file="DrugGEN/data/akt_train.smi" --drug_dataset_file="drugs_train.pt" --max_atom=45
 ```
 
 ** Please find the arguments in the **main.py** file. Explanation of the commands can be found below.
@@ -180,7 +180,8 @@ Model arguments:
   --mlp_ratio MLP_RATIO     MLP ratio for the Transformers
   --dis_select DIS_SELECT   Select the discriminator for the first and second GAN
   --init_type INIT_TYPE     Initialization type for the model
-  --dropout DROPOUT         Dropout rate for the model
+  --dropout DROPOUT         Dropout rate for the encoder
+  --dec_dropout DEC_DROPOUT Dropout rate for the decoder
 Training arguments:
   --batch_size BATCH_SIZE   Batch size for the training
   --epoch EPOCH             Epoch number for Training
